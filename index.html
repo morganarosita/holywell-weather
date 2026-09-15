@@ -21,25 +21,31 @@ body {
 
 /* Notion's iframe becomes the viewport */
 #viewport {
-    position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* FIXED DESIGN CANVAS
-   This is what gets scaled as one complete unit.
+/*
+   CARD WRAPPER
+
+   This box always keeps a 2:1 aspect ratio (matching the
+   600x300 design) and is sized to fit inside the viewport
+   without ever exceeding it in either dimension - the same
+   "contain, don't crop" behavior the old JS tried to do,
+   but handled natively by the browser's layout engine.
+
+   container-type lets children below use cqw/cqh units,
+   which are percentages of THIS element's own box - so
+   everything inside scales proportionally no matter what
+   size this wrapper ends up being.
 */
-#canvas {
-    position: absolute;
-
-    width: 600px;
-    height: 300px;
-
-    left: 0;
-    top: 0;
-
-    transform-origin: top left;
+#card-wrapper {
+    width: min(100%, 200vh);
+    aspect-ratio: 2 / 1;
+    container-type: inline-size;
 }
 
 /* ==============================
@@ -47,14 +53,14 @@ body {
 ================================ */
 
 .weather-card {
-    width: 600px;
-    height: 300px;
+    width: 100%;
+    height: 100%;
 
     background: #EAF1EE;
 
-    border-radius: 30px;
+    border-radius: 5cqw;
 
-    padding: 30px 38px;
+    padding: 5cqh 6.3cqw;
 
     font-family:
         Arial,
@@ -70,8 +76,8 @@ body {
 /* LOCATION */
 
 .location {
-    font-size: 24px;
-    line-height: 30px;
+    font-size: 4cqw;
+    line-height: 5cqw;
 
     color: #66736F;
 
@@ -79,7 +85,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 
-    margin-bottom: 8px;
+    margin-bottom: 1.3cqw;
 }
 
 
@@ -89,38 +95,38 @@ body {
     display: flex;
     align-items: center;
 
-    height: 105px;
+    height: 17.5cqw;
 
-    gap: 24px;
+    gap: 4cqw;
 }
 
 .weather-icon {
-    width: 82px;
-    height: 82px;
+    width: 13.7cqw;
+    height: 13.7cqw;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    font-size: 68px;
+    font-size: 11.3cqw;
     line-height: 1;
 
     flex-shrink: 0;
 }
 
 .temperature {
-    font-size: 76px;
-    line-height: 70px;
+    font-size: 12.7cqw;
+    line-height: 11.7cqw;
 
     font-weight: 600;
 
-    letter-spacing: -4px;
+    letter-spacing: -0.67cqw;
 
     white-space: nowrap;
 }
 
 .temperature small {
-    font-size: 27px;
+    font-size: 4.5cqw;
 
     font-weight: 400;
 
@@ -128,16 +134,16 @@ body {
 
     vertical-align: top;
 
-    margin-left: 3px;
+    margin-left: 0.5cqw;
 }
 
 .condition {
-    font-size: 23px;
-    line-height: 28px;
+    font-size: 3.8cqw;
+    line-height: 4.7cqw;
 
     color: #66736F;
 
-    margin-top: 5px;
+    margin-top: 0.8cqw;
 
     white-space: nowrap;
 }
@@ -153,9 +159,9 @@ body {
 
     width: 100%;
 
-    margin-top: 25px;
+    margin-top: 4.2cqw;
 
-    gap: 8px;
+    gap: 1.3cqw;
 }
 
 .day {
@@ -165,20 +171,20 @@ body {
 }
 
 .day-name {
-    font-size: 17px;
-    line-height: 22px;
+    font-size: 2.8cqw;
+    line-height: 3.7cqw;
 
     color: #74807D;
 
-    margin-bottom: 5px;
+    margin-bottom: 0.8cqw;
 }
 
 .day-icon {
-    font-size: 27px;
+    font-size: 4.5cqw;
 
-    line-height: 32px;
+    line-height: 5.3cqw;
 
-    height: 34px;
+    height: 5.7cqw;
 }
 
 .temps {
@@ -186,11 +192,11 @@ body {
 
     justify-content: center;
 
-    gap: 7px;
+    gap: 1.2cqw;
 
-    font-size: 16px;
+    font-size: 2.7cqw;
 
-    line-height: 20px;
+    line-height: 3.3cqw;
 
     white-space: nowrap;
 }
@@ -208,8 +214,8 @@ body {
 
 .loading,
 .error {
-    width: 600px;
-    height: 300px;
+    width: 100%;
+    height: 100%;
 
     display: flex;
 
@@ -223,20 +229,7 @@ body {
         Helvetica,
         sans-serif;
 
-    font-size: 22px;
-}
-
-
-/* ==============================
-   MOBILE / VERY SMALL EMBEDS
-================================ */
-
-@media (max-width: 500px) {
-
-    /* Nothing here changes the design.
-       The entire canvas is scaled by JS.
-    */
-
+    font-size: 3.7cqw;
 }
 </style>
 </head>
@@ -245,7 +238,7 @@ body {
 
 <div id="viewport">
 
-    <div id="canvas">
+    <div id="card-wrapper">
 
         <div class="weather-card">
 
@@ -265,91 +258,6 @@ body {
 
 
 <script>
-
-/* ==================================================
-   FIXED-CANVAS SCALING
-
-   The internal design is always 600 × 300.
-
-   When Notion changes the embed size,
-   the ENTIRE design scales proportionally.
-
-   Nothing is cropped.
-================================================== */
-
-const canvas =
-    document.getElementById("canvas");
-
-const viewport =
-    document.getElementById("viewport");
-
-
-function scaleCanvas() {
-
-    const availableWidth =
-        viewport.clientWidth;
-
-    const availableHeight =
-        viewport.clientHeight;
-
-
-    if (
-        availableWidth <= 0 ||
-        availableHeight <= 0
-    ) {
-        return;
-    }
-
-
-    const scaleX =
-        availableWidth / 600;
-
-    const scaleY =
-        availableHeight / 300;
-
-
-    /* Always use the smaller scale
-       so the complete canvas remains visible.
-    */
-
-    const scale =
-        Math.min(scaleX, scaleY);
-
-
-    canvas.style.transform =
-        `scale(${scale})`;
-
-
-    /* Center the scaled canvas */
-
-    const scaledWidth =
-        600 * scale;
-
-    const scaledHeight =
-        300 * scale;
-
-
-    canvas.style.left =
-        `${(availableWidth - scaledWidth) / 2}px`;
-
-    canvas.style.top =
-        `${(availableHeight - scaledHeight) / 2}px`;
-}
-
-
-/* Resize whenever Notion changes
-   the embed dimensions.
-*/
-
-const observer =
-    new ResizeObserver(
-        scaleCanvas
-    );
-
-observer.observe(viewport);
-
-scaleCanvas();
-
 
 /* ==================================================
    WEATHER
@@ -675,11 +583,6 @@ async function loadWeather(
         </div>
 
     `;
-
-
-    /* Recalculate after content loads */
-
-    scaleCanvas();
 
 }
 
