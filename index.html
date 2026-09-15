@@ -14,26 +14,31 @@ body {
     margin: 0;
     padding: 0;
     width: 100%;
+    height: 100%;
+    overflow: hidden;
     background: transparent;
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ==============================
+   WEATHER CARD
+   Designed to match the
+   approximately 194 × 94px
+   greeting card in Notion
+================================ */
+
 .weather-card {
     width: 100%;
-    max-width: 590px;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
 
-    /* Responsive height instead of fixed height */
-    aspect-ratio: 2.05 / 1;
+    background: #EEF3F1;
+    border-radius: 16px;
 
-    min-height: 90px;
+    padding: 10px 13px;
 
-    background: #E8F1EC;
-    border-radius: clamp(14px, 3vw, 22px);
-
-    padding: clamp(14px, 5%, 28px)
-             clamp(16px, 6%, 38px);
-
-    color: #393733;
+    color: #27312F;
 
     overflow: hidden;
 }
@@ -42,13 +47,18 @@ body {
 /* LOCATION */
 
 .location {
-    font-size: clamp(10px, 2.8vw, 17px);
-    color: #66635e;
-    margin-bottom: clamp(3px, 1vw, 8px);
+    width: 100%;
+
+    font-size: 9px;
+    line-height: 1.1;
+
+    color: #65716E;
 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    margin-bottom: 2px;
 }
 
 
@@ -57,33 +67,49 @@ body {
 .main-weather {
     display: flex;
     align-items: center;
-    gap: clamp(7px, 2.5vw, 20px);
+
+    height: 34px;
+
+    gap: 7px;
 }
 
 .weather-icon {
-    font-size: clamp(28px, 8vw, 58px);
+    font-size: 25px;
     line-height: 1;
+
     flex-shrink: 0;
 }
 
+.weather-details {
+    min-width: 0;
+}
+
 .temperature {
-    font-size: clamp(28px, 8vw, 60px);
+    font-size: 29px;
+    line-height: 25px;
+
     font-weight: 600;
-    line-height: .9;
-    letter-spacing: clamp(-2px, -.4vw, -3px);
+
+    letter-spacing: -1.5px;
+
     white-space: nowrap;
 }
 
 .temperature small {
-    font-size: clamp(10px, 3vw, 21px);
+    font-size: 9px;
+
     font-weight: 400;
+
+    vertical-align: top;
+
     letter-spacing: 0;
 }
 
 .condition {
-    margin-top: clamp(3px, 1vw, 8px);
-    font-size: clamp(9px, 2.8vw, 17px);
-    color: #66635e;
+    font-size: 8px;
+    line-height: 10px;
+
+    color: #65716E;
 
     white-space: nowrap;
     overflow: hidden;
@@ -91,76 +117,98 @@ body {
 }
 
 
-/* FORECAST */
+/* ==============================
+   5-DAY FORECAST
+================================ */
 
 .forecast {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
 
-    margin-top: clamp(8px, 3vw, 25px);
+    grid-template-columns:
+        repeat(5, 1fr);
 
     width: 100%;
+
+    margin-top: 5px;
+
+    gap: 2px;
 }
 
 .day {
-    text-align: center;
     min-width: 0;
-    flex: 1;
+
+    text-align: center;
 }
 
 .day-name {
-    font-size: clamp(7px, 2vw, 13px);
-    color: #77736d;
-    margin-bottom: clamp(2px, .7vw, 7px);
+    font-size: 7px;
+    line-height: 8px;
+
+    color: #77827F;
+
+    white-space: nowrap;
 }
 
 .day-icon {
-    font-size: clamp(13px, 4vw, 24px);
-    height: clamp(17px, 5vw, 30px);
+    font-size: 12px;
+    line-height: 14px;
+
+    height: 14px;
+}
+
+.temps {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+
+    font-size: 7px;
+    line-height: 8px;
+
+    white-space: nowrap;
 }
 
 .high {
-    font-size: clamp(8px, 2.2vw, 14px);
     font-weight: 600;
-    margin-top: 2px;
 }
 
 .low {
-    font-size: clamp(7px, 1.8vw, 12px);
-    color: #85817b;
-    margin-top: 2px;
+    color: #8A9491;
 }
 
 
 /* LOADING */
 
 .loading {
+    width: 100%;
+    height: 100%;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
-    width: 100%;
-    height: 100%;
+    text-align: center;
 
-    color: #77736d;
-    font-size: clamp(10px, 2.5vw, 15px);
+    color: #65716E;
+
+    font-size: 10px;
 }
 
 
 /* ERROR */
 
 .error {
+    width: 100%;
+    height: 100%;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
-    width: 100%;
-    height: 100%;
-
-    color: #77736d;
-    font-size: clamp(9px, 2.5vw, 15px);
     text-align: center;
+
+    color: #65716E;
+
+    font-size: 9px;
 }
 </style>
 </head>
@@ -170,9 +218,11 @@ body {
 <div class="weather-card">
 
     <div id="weather">
+
         <div class="loading">
-            Detecting location...
+            Detecting weather...
         </div>
+
     </div>
 
 </div>
@@ -218,12 +268,12 @@ const weatherCodes = {
     86: ["Heavy snow showers", "❄️"],
 
     95: ["Thunderstorm", "⛈️"],
-    96: ["Thunderstorm with hail", "⛈️"],
-    99: ["Thunderstorm with hail", "⛈️"]
+    96: ["Thunderstorm", "⛈️"],
+    99: ["Thunderstorm", "⛈️"]
 };
 
 
-function weatherInfo(code) {
+function getWeatherInfo(code) {
 
     return weatherCodes[code] ||
         ["Weather", "🌤️"];
@@ -231,62 +281,54 @@ function weatherInfo(code) {
 }
 
 
-/* ---------------------------------------
+/* ==============================
    AUTOMATIC LOCATION
---------------------------------------- */
+================================ */
 
 async function detectLocation() {
 
     try {
 
-        const response = await fetch(
+        const locationResponse = await fetch(
             "https://api.bigdatacloud.net/data/" +
             "reverse-geocode-client" +
             "?localityLanguage=en"
         );
 
-        if (!response.ok) {
+        if (!locationResponse.ok) {
             throw new Error(
-                "Location detection failed"
+                "Location unavailable"
             );
         }
 
-        const data =
-            await response.json();
+        const location =
+            await locationResponse.json();
+
 
         const latitude =
-            data.latitude;
+            location.latitude;
 
         const longitude =
-            data.longitude;
+            location.longitude;
+
 
         const city =
-            data.city ||
-            data.locality ||
-            data.principalSubdivision ||
-            "";
+            location.city ||
+            location.locality ||
+            location.principalSubdivision ||
+            "Local";
+
 
         const country =
-            data.countryName ||
+            location.countryName ||
             "";
 
-        let locationName =
-            "Local Weather";
 
-        if (city && country) {
+        const locationName =
+            country
+                ? city + ", " + country
+                : city;
 
-            locationName =
-                city + ", " + country;
-
-        } else if (city) {
-
-            locationName = city;
-
-        } else if (country) {
-
-            locationName = country;
-
-        }
 
         await loadWeather(
             latitude,
@@ -305,7 +347,7 @@ async function detectLocation() {
         ).innerHTML = `
 
             <div class="error">
-                Weather temporarily unavailable.
+                Weather unavailable
             </div>
 
         `;
@@ -315,9 +357,9 @@ async function detectLocation() {
 }
 
 
-/* ---------------------------------------
-   WEATHER
---------------------------------------- */
+/* ==============================
+   GET WEATHER
+================================ */
 
 async function loadWeather(
     latitude,
@@ -327,13 +369,24 @@ async function loadWeather(
 
     const url =
         "https://api.open-meteo.com/v1/forecast" +
-        "?latitude=" + latitude +
-        "&longitude=" + longitude +
-        "&current=temperature_2m,weather_code" +
-        "&daily=weather_code," +
+
+        "?latitude=" +
+        latitude +
+
+        "&longitude=" +
+        longitude +
+
+        "&current=" +
+        "temperature_2m," +
+        "weather_code" +
+
+        "&daily=" +
+        "weather_code," +
         "temperature_2m_max," +
         "temperature_2m_min" +
+
         "&timezone=auto" +
+
         "&forecast_days=5";
 
 
@@ -344,7 +397,7 @@ async function loadWeather(
     if (!response.ok) {
 
         throw new Error(
-            "Weather request failed"
+            "Weather unavailable"
         );
 
     }
@@ -365,12 +418,14 @@ async function loadWeather(
         condition,
         icon
     ] =
-        weatherInfo(
+        getWeatherInfo(
             current.weather_code
         );
 
 
-    /* FORECAST */
+    /* ==========================
+       FORECAST
+    ========================== */
 
     let forecastHTML = "";
 
@@ -385,7 +440,7 @@ async function loadWeather(
             ,
             forecastIcon
         ] =
-            weatherInfo(
+            getWeatherInfo(
                 daily.weather_code[i]
             );
 
@@ -420,18 +475,20 @@ async function loadWeather(
                     ${forecastIcon}
                 </div>
 
-                <div class="high">
-                    ${Math.round(
-                        daily
-                        .temperature_2m_max[i]
-                    )}°
-                </div>
+                <div class="temps">
 
-                <div class="low">
-                    ${Math.round(
-                        daily
-                        .temperature_2m_min[i]
-                    )}°
+                    <span class="high">
+                        ${Math.round(
+                            daily.temperature_2m_max[i]
+                        )}°
+                    </span>
+
+                    <span class="low">
+                        ${Math.round(
+                            daily.temperature_2m_min[i]
+                        )}°
+                    </span>
+
                 </div>
 
             </div>
@@ -441,7 +498,9 @@ async function loadWeather(
     }
 
 
-    /* DISPLAY */
+    /* ==========================
+       DISPLAY
+    ========================== */
 
     document.getElementById(
         "weather"
@@ -451,13 +510,15 @@ async function loadWeather(
             ${locationName}
         </div>
 
+
         <div class="main-weather">
 
             <div class="weather-icon">
                 ${icon}
             </div>
 
-            <div>
+
+            <div class="weather-details">
 
                 <div class="temperature">
 
@@ -469,6 +530,7 @@ async function loadWeather(
 
                 </div>
 
+
                 <div class="condition">
                     ${condition}
                 </div>
@@ -476,6 +538,7 @@ async function loadWeather(
             </div>
 
         </div>
+
 
         <div class="forecast">
 
@@ -488,16 +551,16 @@ async function loadWeather(
 }
 
 
-/* ---------------------------------------
+/* ==============================
    START
---------------------------------------- */
+================================ */
 
 detectLocation();
 
 
-/* ---------------------------------------
+/* ==============================
    REFRESH EVERY 10 MINUTES
---------------------------------------- */
+================================ */
 
 setInterval(
     detectLocation,
